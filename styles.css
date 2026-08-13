@@ -252,8 +252,34 @@ a:focus-visible, .btn:focus-visible {
    ========================================================================== */
 #about .panel h2 { margin: 0 0 40px; }
 #about p { font-size: 17px; line-height: 1.62; color: var(--text); text-wrap: pretty; max-width: 900px; }
-.about-editions { margin-top: 20px; }
-.about-editions a:hover { opacity: 1; }
+#about p + p { margin-top: 16px; }
+
+/* NRF / ASPIRE project blocks (organizer request 2026-08-13): each funder
+   gets its own framed block under the intro — same frame tokens as the
+   cards — with logo, project title, description, and its own link row:
+   NRF to the previous editions, ASPIRE to the JST program page. */
+.about-projects { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; margin-top: 28px; }
+.about-project {
+  border-radius: var(--r-card);
+  background: rgba(228,234,238,.045);
+  border: 1px solid rgba(228,234,238,.18);
+  border-top-color: rgba(228,234,238,.4);
+  padding: 28px 30px 30px;
+  display: flex;
+  flex-direction: column;
+}
+/* align-self keeps the SVG marks at the frame's left edge — the flex
+   column's default stretch hands them the full width and the SVG viewBox
+   re-centers the artwork inside it. */
+.about-project img.mark--nrf    { height: 40px; width: auto; align-self: flex-start; }
+.about-project img.mark--aspire { height: 27px; width: auto; margin-top: 7px; align-self: flex-start; }
+.about-project h3 { font-size: 20px; font-weight: 500; margin-top: 22px; }
+#about .about-project p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-top: 10px; }
+/* Link row pinned to the frame bottom so both blocks' links align even
+   when the descriptions run different lengths. */
+.about-project-links { margin-top: auto; padding-top: 18px; font-size: 13px; color: var(--muted); }
+.about-project-links a { color: var(--text); }
+.about-project-links a:hover { opacity: 1; }
 
 /* ==========================================================================
    Program
@@ -670,6 +696,7 @@ a:focus-visible, .btn:focus-visible {
   .card--keynote { flex-direction: column; gap: 16px; }
   .card--keynote .card-photo { width: 100%; flex: 0 0 auto; }
   .card--keynote .card-body { padding: 20px 20px 24px; }
+  .about-projects  { grid-template-columns: 1fr; }
   .org-groups      { grid-template-columns: 1fr; row-gap: 34px; }
   .committee-list  { grid-template-columns: 1fr; row-gap: 20px; }
   .venue-map { min-height: 240px; }
