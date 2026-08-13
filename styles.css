@@ -227,7 +227,7 @@ a:focus-visible, .btn:focus-visible {
    request 2026-07-31) — a step up the existing type scale plus weight,
    not a new size. ".hero-meta > div" is (0,1,1); needs matching specificity
    to actually win, not just a bare class. */
-.hero-meta > div.hero-meta-prime { font-size: 17px; font-weight: 500; }
+.hero-meta > div.hero-meta-prime { font-size: 20px; font-weight: 500; }
 
 .hero .btn { margin: 28px 0 0; font-size: 17px; padding: 15px 30px; }
 
@@ -276,10 +276,28 @@ a:focus-visible, .btn:focus-visible {
 .about-project h3 { font-size: 20px; font-weight: 500; margin-top: 22px; }
 #about .about-project p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-top: 10px; }
 /* Link row pinned to the frame bottom so both blocks' links align even
-   when the descriptions run different lengths. */
-.about-project-links { margin-top: auto; padding-top: 18px; font-size: 13px; color: var(--muted); }
-.about-project-links a { color: var(--text); }
-.about-project-links a:hover { opacity: 1; }
+   when the descriptions run different lengths. Links are outlined chips
+   (organizer request 2026-08-13: previous-edition links were near-invisible
+   as 13px muted text) — visible tap targets, but hairline-bordered, never
+   the primary-CTA --signal fill. */
+.about-project-links {
+  margin-top: auto;
+  padding-top: 22px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.about-project-links-label { font-size: 13px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-right: 4px; }
+.about-project-links a {
+  display: inline-block;
+  font-size: 15px;
+  color: var(--text);
+  padding: 9px 18px;
+  border: 1px solid var(--edge-top);
+  border-radius: var(--r-ctrl);
+}
+.about-project-links a:hover { opacity: 1; background: rgba(228,234,238,.08); }
 
 /* ==========================================================================
    Program
@@ -560,7 +578,16 @@ a:focus-visible, .btn:focus-visible {
 
 .grid-chairs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px; }
 .org-photo { position: relative; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid rgba(228,234,238,.16); transition: border-color .2s ease; }
-.org-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; display: block; }
+/* Same per-portrait crop tuning as .card-photo img — Inami's source is a
+   half-body landscape shot, so unzoomed his face reads far smaller than
+   Andrea's tight headshot beside it. */
+.org-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  object-position: var(--crop-x, 50%) var(--crop-y, 25%);
+  transform: scale(var(--crop-zoom, 1));
+  transform-origin: var(--crop-x, 50%) var(--crop-y, 25%);
+}
+.org-photo--inami img { --crop-x: 60%; --crop-y: 12%; --crop-zoom: 2; }
 .org-photo .card-photo-note { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 10px; box-sizing: border-box; }
 .card--org:hover .org-photo { border-color: var(--edge-top); }
 
