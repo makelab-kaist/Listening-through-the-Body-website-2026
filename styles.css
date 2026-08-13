@@ -39,7 +39,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 p { margin: 0; }
-h1, h2, h3, h4 { margin: 0; font-weight: 300; }
+h1, h2, h3 { margin: 0; font-weight: 300; }
 a { color: var(--text); text-decoration: none; }
 a:hover { color: var(--text); opacity: .68; }
 ::selection { background: rgba(228,234,238,.22); }
@@ -223,6 +223,11 @@ a:focus-visible, .btn:focus-visible {
 .hero-meta > div:first-child { padding-left: 0; }
 .hero-meta > div:last-child { padding-right: 0; }
 .hero-meta > div + div { border-left: 1px solid var(--edge); }
+/* Date and venue carry more weight than "Free and open to all" (organizer
+   request 2026-07-31) — a step up the existing type scale plus weight,
+   not a new size. ".hero-meta > div" is (0,1,1); needs matching specificity
+   to actually win, not just a bare class. */
+.hero-meta > div.hero-meta-prime { font-size: 17px; font-weight: 500; }
 
 .hero .btn { margin: 28px 0 0; font-size: 17px; padding: 15px 30px; }
 
@@ -247,6 +252,8 @@ a:focus-visible, .btn:focus-visible {
    ========================================================================== */
 #about .panel h2 { margin: 0 0 40px; }
 #about p { font-size: 17px; line-height: 1.62; color: var(--text); text-wrap: pretty; max-width: 900px; }
+.about-editions { margin-top: 20px; }
+.about-editions a:hover { opacity: 1; }
 
 /* ==========================================================================
    Program
@@ -301,16 +308,18 @@ a:focus-visible, .btn:focus-visible {
 .title-rule:empty {
   height: 1px;
   width: min(300px, 100%);
-  background: rgba(124,136,146,.28);
+  background: color-mix(in srgb, var(--hairline) 28%, transparent);
 }
 .row--keynote .title-rule:empty {
   width: min(340px, 100%);
-  background: rgba(124,136,146,.32);
+  background: color-mix(in srgb, var(--hairline) 32%, transparent);
 }
 
 .row--muted { color: var(--muted); }
 .row--muted .row-time { opacity: .75; }
 .row--muted .row-name { color: var(--muted); }
+
+.row-qa { font-size: 13px; color: var(--muted); margin-top: 6px; }
 
 /* ==========================================================================
    Speakers
@@ -323,7 +332,10 @@ a:focus-visible, .btn:focus-visible {
 .group-head--keynotes { padding: 34px 0 20px; }
 .group-head--talks { padding: 52px 0 18px; }
 
-.grid-keynotes { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 28px; margin-top: 28px; }
+/* Keynotes (Task 14): stacked full-width rows, not a grid — each keynote's
+   abstract length is independent now, so there's no equal-height constraint
+   to satisfy with a grid. */
+.grid-keynotes { display: flex; flex-direction: column; gap: 28px; margin-top: 28px; }
 .grid-talks { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 20px; margin-top: 24px; }
 
 .card {
@@ -355,7 +367,7 @@ a:focus-visible, .btn:focus-visible {
    task-5-report.md for the target fraction and per-pass notes. Cards not
    listed here already read close to the target at the default crop. */
 .card-photo--yiyun img  { --crop-y: 8%; --crop-zoom: 1.55; }
-.card-photo--kening img { --crop-y: 20%; --crop-zoom: 1.25; }
+.card-photo--kening img { --crop-y: 12%; --crop-zoom: 2.2; }
 .card-photo--azumi img  { --crop-y: 38%; --crop-zoom: 1.5; }
 .card-body { padding: 24px 26px 28px; flex: 1; display: flex; flex-direction: column; }
 .card-name {
@@ -365,16 +377,49 @@ a:focus-visible, .btn:focus-visible {
   letter-spacing: -.012em;
   line-height: 1.14;
   min-height: 36px;
+  display: block;
 }
-.card-foot { padding-top: 12px; display: flex; align-items: center; }
+/* Card-foot now stacks institution + department (Task 9) instead of a single
+   centered line — column, not the old row/align-items:center. */
+.card-foot { padding-top: 12px; display: flex; flex-direction: column; gap: 3px; }
 .card-rule {
   font-size: 13px;
-  color: var(--muted);
+  color: var(--text);
   height: auto;
   width: auto;
   background: none;
 }
-.card-rule:empty { height: 1px; width: min(200px,100%); background: rgba(124,136,146,.28); }
+.card-rule:empty { height: 1px; width: min(200px,100%); background: color-mix(in srgb, var(--hairline) 28%, transparent); }
+
+/* Department: secondary to the institution, its own line beneath, 13px muted
+   (Task 9, organizer-supplied 2026-07-31). Not every card has one — ETRI's
+   card omits it entirely, no :empty scaffold needed. */
+.card-dept { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* Keynote title/abstract placeholders (Task 9) — lorem ipsum only, see the
+   HTML comments and data-placeholder attributes on each. 15px/13px are both
+   on the existing type scale, not new sizes. */
+.card-title { font-size: 15px; color: var(--text); line-height: 1.4; margin-top: 12px; }
+/* max-width caps the measure — a 250-word abstract set the full width of the
+   row is hard to read (Task 14). 53ch lands the rendered line at ~68
+   characters in this font, the readable target (65-70). */
+.card-abstract { font-size: 13px; color: var(--muted); line-height: 1.55; margin-top: 8px; max-width: 53ch; }
+
+/* Keynote cards (Task 14): photo left, content right — a full-width row
+   instead of a grid cell. Photo doesn't stretch to the row's full height
+   (align-items default would); a 250-word abstract runs well past the
+   photo's own height and there's nothing under the photo worth filling.
+   Photo sits flush against the card's top/left edges (organizer request,
+   2026-08-10) — same treatment as the talk cards' photos, no inset. The
+   card's own overflow:hidden + border-radius clips the photo's outer
+   corner to match; only the body carries padding. */
+.card--keynote {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+}
+.card--keynote .card-photo { flex: 0 0 220px; width: 220px; }
+.card--keynote .card-body { flex: 1; min-width: 0; padding: 28px 32px 32px 0; }
 
 .card--talk {
   border-radius: 14px;
@@ -394,16 +439,18 @@ a:focus-visible, .btn:focus-visible {
 .card-photo-note { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.5; }
 .card--talk .card-body { padding: 16px 18px 20px; }
 .card--talk .card-name { font-size: 20px; font-weight: 400; letter-spacing: normal; line-height: 1.2; min-height: 48px; }
-.card--talk .card-foot { height: 20px; padding-top: 12px; }
-.card--talk .card-rule:empty { width: min(120px,100%); background: rgba(124,136,146,.26); }
-.card-foot--text { font-size: 13px; line-height: 1; color: var(--muted); }
+/* No longer a fixed height — talk cards with a department line now run two
+   rows here, ETRI's (no department) stays one; the grid row still equalizes
+   every card's overall height regardless. */
+.card--talk .card-foot { padding-top: 12px; }
+.card--talk .card-rule:empty { width: min(120px,100%); background: color-mix(in srgb, var(--hairline) 26%, transparent); }
 
 /* Cards lift their border on hover — a visible, non-accent affordance.
    Speaker cards are <a> now (Task 5, external speaker links) — override the
    global a:hover opacity dip so the whole card doesn't dim, and keep the
    name from reading as a plain text link. */
 .card:hover, .card--talk:hover { border-color: var(--edge-top); }
-.card:hover, .card--talk:hover, .card--org:hover { opacity: 1; }
+.card:hover, .card--talk:hover, .card--org:hover, .committee-item:hover { opacity: 1; }
 
 /* ==========================================================================
    Venue
@@ -443,7 +490,7 @@ a:focus-visible, .btn:focus-visible {
    Organizers
    ========================================================================== */
 #organizers .panel h2 { margin: 14px 0 0; }
-.org-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; margin: 0 0 40px; padding-bottom: 28px; border-bottom: 1px solid var(--edge); }
+.org-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; margin: 0 0 40px; padding-bottom: 28px; }
 .org-kicker { font-size: 13px; color: var(--muted); letter-spacing: .07em; }
 .org-logos { display: flex; align-items: center; gap: 28px; flex: none; }
 .org-logos > div, .org-logos > a { width: auto; height: auto; display: flex; align-items: center; }
@@ -451,21 +498,49 @@ a:focus-visible, .btn:focus-visible {
    opacity on hover like the card links, not the plain a:hover dip. */
 .org-logos > a:hover { opacity: 1; }
 
-.grid-organizers { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 22px; max-width: 980px; }
-.org-photo { aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid rgba(228,234,238,.16); transition: border-color .2s ease; }
+/* Chairs (photographed) and Committee (text-only) are two distinct groups,
+   not one grid — organizer decision 2026-07-31 that student committee
+   members are represented as text, not photo cards. */
+/* No divider inside Organizers (organizer request 2026-07-31) — .group-head's
+   base rule draws a border-bottom line for Speakers' keynote/talk headings;
+   this overrides it back off without touching that shared class. Same top
+   padding for both now that they sit side by side, not stacked. */
+.group-head--chairs { border-bottom: 0; padding: 0 0 20px; }
+/* Committee's heading padding shrinks so the shared-institution note (below)
+   sits close under "Committee", with its own margin restoring the usual
+   20px gap before the list — same total rhythm as Chairs, split in two. */
+.group-head--committee { border-bottom: 0; padding: 0 0 6px; }
+.group-head-note--committee { margin: 0 0 20px; }
+
+/* Chairs / Committee side by side, same pattern and column-gap as the
+   Program section's Morning / Afternoon split (task 10). */
+.org-groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 56px; align-items: start; }
+
+.grid-chairs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px; }
+.org-photo { position: relative; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid rgba(228,234,238,.16); transition: border-color .2s ease; }
 .org-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; display: block; }
+.org-photo .card-photo-note { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 10px; box-sizing: border-box; }
 .card--org:hover .org-photo { border-color: var(--edge-top); }
+
+/* Half-width column no longer fits a 3-up text grid (task 10) — two columns. */
+.committee-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 32px; row-gap: 28px; }
+.committee-item { display: block; }
+.committee-item .org-rule:not(.org-rule--role) { margin-top: 0; }
 .org-rule {
   font-size: 15px;
+  line-height: 1.3;
   color: var(--text);
   height: auto;
   width: auto;
   background: none;
   margin-top: 20px;
+  /* Room for a two-line name (e.g. "Prof. Andrea Bianchi" at 390px) so the
+     role label below lands on the same baseline across every card. */
+  min-height: calc(15px * 1.3 * 2);
 }
-.org-rule:empty { height: 1px; width: min(120px,100%); background: rgba(124,136,146,.3); }
+.org-rule:empty { height: 1px; width: min(120px,100%); background: color-mix(in srgb, var(--hairline) 30%, transparent); }
 .org-rule--role { font-size: 13px; color: var(--muted); margin-top: 12px; }
-.org-rule--role:empty { width: min(70px,100%); background: rgba(124,136,146,.2); }
+.org-rule--role:empty { width: min(70px,100%); background: color-mix(in srgb, var(--hairline) 20%, transparent); }
 
 /* ==========================================================================
    Footer
@@ -494,7 +569,26 @@ a:focus-visible, .btn:focus-visible {
 .hero-logos img, .org-logos img { display: block; width: auto; }
 .org-logos img  { height: 34px; }
 .org-logos img.mark--kaist    { height: 25px; }
-.org-logos img.mark--makelab  { height: 24px; }
+/* make Lab's mark is "make::lab", entirely lowercase — no capitals. The
+   24px box above was sized as if it were a cap-height mark, but it was
+   actually rendering ASCENDER height (k/l/b) — ratio .991 of its own box,
+   vs. KAIST's .518 — so it read ~1.8x too large next to KAIST/SUSTech's
+   capitals (task 10). Box reduced so the ascender lands near their cap
+   height, then nudged up by eye: lowercase carries less visual weight
+   than capitals at an identical rendered height. */
+.org-logos img.mark--makelab  { height: 15px; }
+/* Task 8 sized this box by eye and overshot: canvas ink-scan of the rendered
+   marks (Task 9 review) measured SUSTech's actual wordmark-capitals height —
+   the "SUSTech" letters only, excluding the flame icon and the tagline block
+   to their right, which both extend well past the letters' own vertical
+   extent — not the flame/tagline-inflated box. Measured cap ÷ box ratios:
+   KAIST .527 (letters only, excluding the base swoosh, which is a separate
+   ink band below the letters), SUSTech .485. Box height below = KAIST's
+   current rendered cap height (25px × .527) ÷ SUSTech's own ratio, so the
+   two now match. It also ships as dark navy/orange ink, not a white variant
+   like the other two marks' files — invisible on this dark panel, so it's
+   forced to a white silhouette to match. */
+.org-logos img.mark--sustech  { height: 27px; filter: brightness(0) invert(1); }
 
 /* Hero row sizes marks to a common CAP HEIGHT, not a common box height or a
    common bounding-box height. Each source packages its wordmark differently
@@ -522,9 +616,7 @@ a:focus-visible, .btn:focus-visible {
    ========================================================================== */
 @media (max-width: 1024px) {
   :root { --gutter: 32px; }
-  .grid-keynotes    { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .grid-talks       { grid-template-columns: repeat(3, minmax(0,1fr)); }
-  .grid-organizers  { grid-template-columns: repeat(4, minmax(0,1fr)); }
   .hero-panel       { width: min(83.33%, 900px); }   /* 10 of 12 cols, still left-aligned */
   .venue            { grid-template-columns: 1fr; }
   .venue-map        { min-height: 380px; border-left: 0; border-top: 1px solid var(--edge); }
@@ -566,9 +658,16 @@ a:focus-visible, .btn:focus-visible {
 
   .program-groups { grid-template-columns: 1fr; row-gap: 34px; }
 
-  .grid-keynotes   { grid-template-columns: 1fr; }
   .grid-talks      { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .grid-organizers { grid-template-columns: repeat(3, minmax(0,1fr)); }
+
+  /* Keynote row has no room for a 220px photo column beside text at this
+     width — stack photo above content instead. */
+  .card--keynote { flex-direction: column; gap: 0; }
+  .card--keynote .card-photo { width: 100%; flex: 0 0 auto; }
+  .card--keynote .card-body { padding: 20px 20px 24px; }
+  .card-abstract { max-width: none; }
+  .org-groups      { grid-template-columns: 1fr; row-gap: 34px; }
+  .committee-list  { grid-template-columns: 1fr; row-gap: 20px; }
   .venue-map { min-height: 240px; }
 
   .section + .section { margin-top: 20px; }
@@ -602,12 +701,15 @@ a:focus-visible, .btn:focus-visible {
   .hero-logos img.mark--kaist   { height: 28px; }
   .hero-logos img.mark--makelab { height: 15px; }
 
-  /* Organizers mark pair must stay horizontal at every width (overrides the
+  /* Organizers marks must stay horizontal at every width (overrides the
      wrap the footer gets above) — shrink the marks instead of stacking them. */
   .org-logos { flex-wrap: nowrap; gap: 12px; }
   .org-logos img { height: 26px; }
   .org-logos img.mark--kaist   { height: 19px; }
-  .org-logos img.mark--makelab { height: 18px; }
+  /* Same ascender-vs-cap-height correction as the base rule (task 10), scaled down. */
+  .org-logos img.mark--makelab { height: 11px; }
+  /* Same ratio-matched fix as the base rule, scaled to mobile's smaller KAIST box. */
+  .org-logos img.mark--sustech { height: 21px; }
 
   /* Sticky .mobile-cta needs clearance so the footer's last line isn't hidden under it */
   .content { padding-bottom: 96px; }
@@ -645,6 +747,6 @@ a:focus-visible, .btn:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .backdrop-pic { position: absolute; }   /* stop the fixed-backdrop parallax */
+  .backdrop { position: absolute; }   /* stop the fixed-backdrop parallax */
   .nav, .mobile-cta { transition: none; }
 }

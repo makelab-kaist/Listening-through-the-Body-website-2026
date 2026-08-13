@@ -17,39 +17,62 @@
   .leaflet-control-attribution { background: rgba(10,13,16,.72) !important; color: #9AA6B0 !important; }
   .leaflet-control-attribution a { color: #E4EAEE !important; }
   .leaflet-control-zoom a { background: #0A0D10 !important; color: #E4EAEE !important; border-color: rgba(228,234,238,.18) !important; }
-  .fallback { position: absolute; left: 8px; bottom: 8px; z-index: 1000; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .fallback { display: none; position: absolute; left: 8px; bottom: 8px; z-index: 1000; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   .fallback a { color: #E4EAEE; }
 </style>
 </head>
 <body>
 <div id="map"></div>
-<p class="fallback"><a href="https://map.naver.com/p/entry/place/18852393" target="_blank" rel="noopener" aria-label="Open KAIST Dogok Campus in Naver Map (opens in a new tab)">Open in Naver Map</a></p>
+<p class="fallback" id="fallback"><a href="https://map.naver.com/p/entry/place/18852393" target="_blank" rel="noopener" aria-label="Open KAIST Dogok Campus in Naver Map (opens in a new tab)">Open in Naver Map</a></p>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  var venue = [37.4837904, 127.044033];    // KAIST Dogok Campus — organizer-supplied Google Maps link
-  var station = [37.487038, 127.046921];   // Maebong Station (매봉역) — organizer-supplied Google Maps link
+  // Fallback link only makes sense if the map itself didn't come up — hidden
+  // by default, revealed only when Leaflet fails to load or init throws.
+  try {
+    var venue = [37.4837904, 127.044033];    // KAIST Dogok Campus — organizer-supplied Google Maps link
+    var station = [37.487038, 127.046921];   // Maebong Station (매봉역) — organizer-supplied Google Maps link
 
-  var map = L.map('map', { attributionControl: true });
-  map.fitBounds([venue, station], { padding: [40, 40], maxZoom: 16 });
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
-    maxZoom: 19
-  }).addTo(map);
-
-  function pin(coords, label) {
-    var icon = L.divIcon({
-      className: '',
-      html: '<div class="pin"></div><div class="pin-label">' + label + '</div>',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7]
+    var map = L.map('map', {
+      attributionControl: true,
+      zoomControl: false,
+      keyboard: false,
+      dragging: false,
+      touchZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      scrollWheelZoom: false
     });
-    L.marker(coords, { icon: icon, alt: label }).addTo(map);
-  }
+    map.fitBounds([venue, station], { padding: [40, 40], maxZoom: 16 });
 
-  pin(venue, 'KAIST Dogok Campus');
-  pin(station, 'Maebong Station');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" tabindex="-1">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    function pin(coords, label) {
+      var icon = L.divIcon({
+        className: '',
+        html: '<div class="pin"></div><div class="pin-label">' + label + '</div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+      L.marker(coords, { icon: icon, alt: label, interactive: false, keyboard: false }).addTo(map);
+    }
+
+    pin(venue, 'KAIST Dogok Campus');
+    pin(station, 'Maebong Station');
+
+    // Attribution must stay visible (OSM licence) but doesn't need to be a tab
+    // stop — Leaflet's own "leafletjs.com" credit link ships without our
+    // tabindex, so strip it from every attribution link post-render rather
+    // than fight the library's markup.
+    document.querySelectorAll('.leaflet-control-attribution a').forEach(function (a) {
+      a.setAttribute('tabindex', '-1');
+    });
+  } catch (e) {
+    document.getElementById('fallback').style.display = 'block';
+  }
 </script>
 </body>
 </html>
