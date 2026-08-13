@@ -400,26 +400,32 @@ a:focus-visible, .btn:focus-visible {
    HTML comments and data-placeholder attributes on each. 15px/13px are both
    on the existing type scale, not new sizes. */
 .card-title { font-size: 15px; color: var(--text); line-height: 1.4; margin-top: 12px; }
-/* max-width caps the measure — a 250-word abstract set the full width of the
-   row is hard to read (Task 14). 53ch lands the rendered line at ~68
-   characters in this font, the readable target (65-70). */
-.card-abstract { font-size: 13px; color: var(--muted); line-height: 1.55; margin-top: 8px; max-width: 53ch; }
+/* Abstract runs the full body width (organizer request 2026-08-13) — the
+   long Kening abstract needs the horizontal room to keep the row height down. */
+.card-abstract { font-size: 13px; color: var(--muted); line-height: 1.55; margin-top: 8px; }
 
-/* Keynote cards (Task 14): photo left, content right — a full-width row
-   instead of a grid cell. Photo doesn't stretch to the row's full height
-   (align-items default would); a 250-word abstract runs well past the
-   photo's own height and there's nothing under the photo worth filling.
-   Photo sits flush against the card's top/left edges (organizer request,
-   2026-08-10) — same treatment as the talk cards' photos, no inset. The
-   card's own overflow:hidden + border-radius clips the photo's outer
-   corner to match; only the body carries padding. */
+/* Keynote cards (organizer request 2026-08-13): photo and text are two
+   separate framed boxes, not one card — the row container drops the card
+   chrome and each half carries its own border/background. Photo keeps its
+   fixed 220px width and 4/5 crop; the body frame grows with its text. */
 .card--keynote {
   flex-direction: row;
   align-items: flex-start;
-  gap: 32px;
+  gap: 24px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.card--keynote .card-photo,
+.card--keynote .card-body {
+  border-radius: var(--r-card);
+  background: rgba(228,234,238,.045);
+  border: 1px solid rgba(228,234,238,.18);
+  border-top-color: rgba(228,234,238,.4);
 }
 .card--keynote .card-photo { flex: 0 0 220px; width: 220px; }
-.card--keynote .card-body { flex: 1; min-width: 0; padding: 28px 32px 32px 0; }
+.card--keynote .card-body { flex: 1; min-width: 0; padding: 28px 32px 32px; }
 
 .card--talk {
   border-radius: 14px;
@@ -534,12 +540,11 @@ a:focus-visible, .btn:focus-visible {
   width: auto;
   background: none;
   margin-top: 20px;
-  /* Room for a two-line name (e.g. "Prof. Andrea Bianchi" at 390px) so the
-     role label below lands on the same baseline across every card. */
-  min-height: calc(15px * 1.3 * 2);
 }
 .org-rule:empty { height: 1px; width: min(120px,100%); background: color-mix(in srgb, var(--hairline) 30%, transparent); }
-.org-rule--role { font-size: 13px; color: var(--muted); margin-top: 12px; }
+/* Role sits tight under the name (organizer request 2026-08-13) — the old
+   two-line min-height reservation on .org-rule is gone for the same reason. */
+.org-rule--role { font-size: 13px; color: var(--muted); margin-top: 4px; }
 .org-rule--role:empty { width: min(70px,100%); background: color-mix(in srgb, var(--hairline) 20%, transparent); }
 
 /* ==========================================================================
@@ -662,10 +667,9 @@ a:focus-visible, .btn:focus-visible {
 
   /* Keynote row has no room for a 220px photo column beside text at this
      width — stack photo above content instead. */
-  .card--keynote { flex-direction: column; gap: 0; }
+  .card--keynote { flex-direction: column; gap: 16px; }
   .card--keynote .card-photo { width: 100%; flex: 0 0 auto; }
   .card--keynote .card-body { padding: 20px 20px 24px; }
-  .card-abstract { max-width: none; }
   .org-groups      { grid-template-columns: 1fr; row-gap: 34px; }
   .committee-list  { grid-template-columns: 1fr; row-gap: 20px; }
   .venue-map { min-height: 240px; }
